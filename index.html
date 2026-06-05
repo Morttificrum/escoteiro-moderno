@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="theme-color" content="#3D6B4F"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="Escoteiro Moderno"/>
+<title>Manual do Escoteiro Moderno 🏕️</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Nunito',sans-serif;background:#2C3E2D;display:flex;justify-content:center;min-height:100vh;}
+#app{width:100%;max-width:430px;min-height:100vh;background:#F5F0E8;display:flex;flex-direction:column;position:relative;overflow:hidden;}
+.screen{display:none;flex-direction:column;height:100vh;overflow:hidden;}
+.screen.active{display:flex;}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+
+/* HEADER */
+.hdr{padding:28px 20px 24px;position:relative;overflow:hidden;flex-shrink:0;}
+.hdr-pattern{position:absolute;top:0;left:0;right:0;bottom:0;opacity:.07;background-image:repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%);background-size:12px 12px;}
+.back-btn{background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.3);color:white;border-radius:10px;padding:7px 14px;font-size:13px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;display:inline-flex;align-items:center;gap:4px;margin-bottom:14px;position:relative;}
+.back-btn:active{opacity:.7;}
+
+/* CARDS */
+.card{background:white;border-radius:16px;padding:15px;margin-bottom:11px;display:flex;align-items:center;gap:13px;cursor:pointer;box-shadow:0 2px 0 rgba(0,0,0,.08);transition:transform .12s;border:2px solid transparent;}
+.card:active{transform:scale(.97);}
+.card-icon{width:50px;height:50px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.card-arrow{font-size:20px;margin-left:auto;flex-shrink:0;opacity:.4;}
+
+/* BADGE */
+.badge{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:3px;}
+
+/* CHAT */
+.chat-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:#F5F0E8;}
+.msg{max-width:83%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.55;}
+.msg.user{align-self:flex-end;border-radius:16px 16px 4px 16px;color:white;background:linear-gradient(135deg,#3D6B4F,#2C5040);}
+.msg.bot{align-self:flex-start;border-radius:16px 16px 16px 4px;background:white;color:#333;box-shadow:0 2px 8px rgba(0,0,0,.08);}
+.chat-input-row{padding:11px 13px;background:white;border-top:2px solid #E8E0D0;display:flex;gap:8px;flex-shrink:0;}
+.chat-input-row input{flex:1;padding:10px 14px;border-radius:24px;border:2px solid #E8E0D0;font-size:14px;outline:none;font-family:'Nunito',sans-serif;background:#F5F0E8;}
+.chat-input-row input:focus{border-color:#3D6B4F;}
+.send-btn{border:none;color:white;border-radius:24px;padding:10px 16px;cursor:pointer;font-size:14px;font-weight:800;font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#3D6B4F,#E8651A);white-space:nowrap;}
+.send-btn:disabled{opacity:.4;cursor:default;}
+
+/* TYPING */
+.dot{width:7px;height:7px;border-radius:50%;background:#aaa;display:inline-block;animation:bounce .8s infinite;}
+.dot:nth-child(2){animation-delay:.15s;}
+.dot:nth-child(3){animation-delay:.3s;}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
+
+/* LESSON */
+.lesson-body{background:white;border-radius:16px;padding:20px;box-shadow:0 2px 0 rgba(0,0,0,.06);line-height:1.85;font-size:15px;color:#3A3A3A;}
+.tip-box{border-radius:14px;padding:14px 16px;margin-top:14px;border-left:4px solid;}
+.numbers-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px;}
+.num-card{background:white;border-radius:14px;padding:14px;text-align:center;box-shadow:0 2px 0 rgba(0,0,0,.07);cursor:pointer;transition:transform .12s;}
+.num-card:active{transform:scale(.95);}
+
+/* HOME HERO */
+.hero{background:linear-gradient(160deg,#2C3E2D 0%,#3D6B4F 60%,#4A8C62 100%);padding:32px 22px 38px;position:relative;overflow:hidden;flex-shrink:0;}
+.hero-bg{position:absolute;top:0;left:0;right:0;bottom:0;opacity:.06;background-image:repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%);background-size:14px 14px;}
+.hero-deco{position:absolute;right:-10px;top:-10px;font-size:120px;opacity:.1;transform:rotate(15deg);}
+
+/* SECTION TITLE */
+.sec-title{font-weight:800;font-size:15px;color:#2C3E2D;margin:20px 0 10px;display:flex;align-items:center;gap:7px;}
+
+/* EMERGENCY BANNER */
+.sos-banner{background:linear-gradient(135deg,#C0392B,#E74C3C);border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:13px;cursor:pointer;box-shadow:0 4px 16px rgba(192,57,43,.35);transition:transform .12s;}
+.sos-banner:active{transform:scale(.97);}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ═══ HOME ═══ -->
+<div class="screen active" id="screen-home">
+  <div class="scroll">
+    <div class="hero">
+      <div class="hero-bg"></div>
+      <div class="hero-deco">🏕️</div>
+      <div style="position:relative;">
+        <div style="display:inline-block;background:rgba(232,101,26,.9);color:white;font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;border-radius:20px;margin-bottom:10px;">Guia de Sobrevivência</div>
+        <h1 style="color:white;font-family:'Fredoka One',cursive;font-size:28px;line-height:1.15;margin-bottom:6px;">Manual do<br/>Escoteiro Moderno 🏕️</h1>
+        <p style="color:rgba(255,255,255,.75);font-size:14px;">Tudo que você precisa saber pra sobreviver em casa!</p>
+        <div style="display:flex;gap:10px;margin-top:16px;">
+          <div style="background:rgba(255,255,255,.12);border-radius:10px;padding:8px 12px;text-align:center;">
+            <div style="color:white;font-weight:800;font-size:16px;">8</div>
+            <div style="color:rgba(255,255,255,.7);font-size:11px;">Módulos</div>
+          </div>
+          <div style="background:rgba(255,255,255,.12);border-radius:10px;padding:8px 12px;text-align:center;">
+            <div style="color:white;font-weight:800;font-size:16px;">32</div>
+            <div style="color:rgba(255,255,255,.7);font-size:11px;">Lições</div>
+          </div>
+          <div style="background:rgba(255,255,255,.12);border-radius:10px;padding:8px 12px;text-align:center;">
+            <div style="color:#F4C430;font-weight:800;font-size:16px;">∞</div>
+            <div style="color:rgba(255,255,255,.7);font-size:11px;">Dicas</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:0 16px 32px;">
+
+      <!-- SOS -->
+      <div class="sec-title">🚨 Emergência?</div>
+      <div class="sos-banner" onclick="openModule(4)">
+        <div style="font-size:36px;">🆘</div>
+        <div>
+          <div style="color:white;font-weight:800;font-size:16px;">Números de Emergência</div>
+          <div style="color:rgba(255,255,255,.85);font-size:13px;margin-top:2px;">SAMU, Bombeiros, Polícia e mais</div>
+        </div>
+        <div style="color:white;font-size:22px;margin-left:auto;opacity:.8;">›</div>
+      </div>
+
+      <!-- MÓDULOS -->
+      <div class="sec-title">📚 Módulos do Manual</div>
+
+      <div class="card" onclick="openModule(0)" style="border-color:#FFF3EE;">
+        <div class="card-icon" style="background:#FFF3EE;">🍳</div>
+        <div style="flex:1;">
+          <div class="badge" style="color:#E8651A;">Módulo 1</div>
+          <div style="font-weight:800;color:#2C3E2D;font-size:15px;">Cozinha Básica</div>
+          <div style="color:#999;font-size:13px;margin-top:1px;">4 lições • Receitas e segurança</div>
+        </div>
+        <div class="card-arrow">›</div>
+      </div>
+
+      <div class="card" onclick="openModule(1)" style="border-color:#EEF4FF;">
+        <div class="card-icon" style="background:#EEF4FF;">👕</div>
+        <div style="flex:1;">
+          <div class="badge" style="color:#3498DB;">Módulo 2</div>
+          <div style="font-weight:800;color:#2C3E2D;font-size:15px;">Lavanderia</div>
+          <div style="color:#999;font-size:13px;margin-top:1px;">4 lições • Lavar, dobrar e mais</div>
+        </div>
+        <div class="card-arrow">›</div>
+      </div>
+
+      <div class="card" onclick="openModule(2)" style="border-color:#EDFAF4;">
+        <div class="card-icon" style="background:#EDFAF4;">🧹</div>
+        <div style="flex:1;">
+          <div class="badge" style="color:#27AE60;">Módulo 3</div>
+          <div style="font-weight:800;color:#2C3E2D;font-size:15px;">Limpeza da Casa</div>
+          <div style="color:#999;font-size:13px;margin-top:1px;">4 lições • Banheiro, louça e mais</div>
+        </div>
+        <div class="card-arrow">›</div>
+      </div>
+
+      <div class="card" onclick="openModule(3)" style="border-color:#F0F8FF;">
+        <div class="card-icon" style="background:#F0F8FF;">🚿</div>
+        <div style="flex:1;">
+          <div class="badge" style="color:#2980B9;">Módulo 4</div>
+          <div style="font-weight:800;color:#2C3E2D;font-size:15px;">Higiene Pessoal</div>
+          <div style="color:#999;font-size:13px;margin-top:1px;">4 lições • Rotina diária completa</div>
+        </div>
+        <div class="card-arrow">›</div>
+      </div>
+
+      <div class="card" onclick="openModule(5)" style="border-color:#FFF8E8;">
+        <div class="card-icon" style="background:#FFF8E8;">⚡</div>
+        <div style="flex:1;">
+          <div class="badge" style="color:#F39C12;">Módulo 5</div>
+          <div style="font-weight:800;color:#2C3E2D;font-size:15px;">Emergências em Casa</div>
+          <div style="color:#999;font-size:13px;margin-top:1px;">4 lições • Luz, água, gás e mais</div>
+        </div>
+        <div class="card-arrow">›</div>
+      </div>
+
+      <div class="card" onclick="openModule(6)" style="border-color:#F5EEF8;">
+        <div class="card-icon" style="background:#F5EEF8;">🔧</div>
+        <div style="flex:1;">
+          <div class="badge" style="color:#8E44AD;">Módulo 6</div>
+          <div style="font-weight:800;color:#2C3E2D;font-size:15px;">Pequenos Reparos</div>
+          <div style="color:#999;font-size:13px;margin-top:1px;">4 lições • Lâmpada, entupimento</div>
+        </div>
+        <div class="card-arrow">›</div>
+      </div>
+
+      <div class="card" onclick="openModule(7)" style="border-color:#FEF0F0;">
+        <div class="card-icon" style="background:#FEF0F0;">💊</div>
+        <div style="flex:1;">
+          <div class="badge" style="color:#E74C3C;">Módulo 7</div>
+          <div style="font-weight:800;color:#2C3E2D;font-size:15px;">Primeiros Socorros</div>
+          <div style="color:#999;font-size:13px;margin-top:1px;">4 lições • Cortes, queimaduras</div>
+        </div>
+        <div class="card-arrow">›</div>
+      </div>
+
+      <!-- SARGENTO IA -->
+      <div class="sec-title">🤖 Precisa de ajuda?</div>
+      <div onclick="openAI()" style="background:linear-gradient(135deg,#2C3E2D,#3D6B4F,#E8651A);border-radius:16px;padding:18px;display:flex;align-items:center;gap:14px;cursor:pointer;box-shadow:0 6px 20px rgba(44,62,45,.4);transition:transform .12s;" onmouseenter="this.style.transform='scale(1.01)'" onmouseleave="this.style.transform='scale(1)'" ontouchstart="">
+        <div style="font-size:42px;">🪖</div>
+        <div>
+          <div style="color:white;font-weight:800;font-size:17px;font-family:'Fredoka One',cursive;">Sargento IA</div>
+          <div style="color:rgba(255,255,255,.8);font-size:13px;margin-top:3px;">Tire qualquer dúvida com seu assistente escoteiro!</div>
+        </div>
+        <div style="color:white;font-size:22px;margin-left:auto;opacity:.7;">›</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══ NÚMEROS DE EMERGÊNCIA ═══ -->
+<div class="screen" id="screen-numbers">
+  <div class="hdr" style="background:linear-gradient(135deg,#C0392B,#E74C3C);">
+    <div class="hdr-pattern"></div>
+    <div style="position:relative;">
+      <button class="back-btn" onclick="goHome()">‹ Início</button>
+      <div style="font-size:46px;margin-bottom:6px;">📞</div>
+      <h2 style="color:white;font-family:'Fredoka One',cursive;font-size:22px;">Números de Emergência</h2>
+      <p style="color:rgba(255,255,255,.8);font-size:13px;margin-top:3px;">Salve estes números — podem salvar vidas!</p>
+    </div>
+  </div>
+  <div class="scroll" style="padding:16px 16px 32px;">
+    <div class="numbers-grid">
+      <div class="num-card" onclick="alert('Ligue 192 — SAMU (Emergências médicas)')">
+        <div style="font-size:36px;">🚑</div>
+        <div style="font-size:28px;font-weight:800;color:#E74C3C;font-family:'Fredoka One',cursive;margin:4px 0;">192</div>
+        <div style="font-weight:800;color:#333;font-size:13px;">SAMU</div>
+        <div style="color:#999;font-size:11px;margin-top:2px;">Emergências médicas</div>
+      </div>
+      <div class="num-card" onclick="alert('Ligue 193 — Corpo de Bombeiros')">
+        <div style="font-size:36px;">🚒</div>
+        <div style="font-size:28px;font-weight:800;color:#E8651A;font-family:'Fredoka One',cursive;margin:4px 0;">193</div>
+        <div style="font-weight:800;color:#333;font-size:13px;">Bombeiros</div>
+        <div style="color:#999;font-size:11px;margin-top:2px;">Incêndio, resgate</div>
+      </div>
+      <div class="num-card" onclick="alert('Ligue 190 — Polícia Militar')">
+        <div style="font-size:36px;">👮</div>
+        <div style="font-size:28px;font-weight:800;color:#2980B9;font-family:'Fredoka One',cursive;margin:4px 0;">190</div>
+        <div style="font-weight:800;color:#333;font-size:13px;">Polícia</div>
+        <div style="color:#999;font-size:11px;margin-top:2px;">Emergências policiais</div>
+      </div>
+      <div class="num-card" onclick="alert('Ligue 199 — Defesa Civil')">
+        <div style="font-size:36px;">🌊</div>
+        <div style="font-size:28px;font-weight:800;color:#27AE60;font-family:'Fredoka One',cursive;margin:4px 0;">199</div>
+        <div style="font-weight:800;color:#333;font-size:13px;">Defesa Civil</div>
+        <div style="color:#999;font-size:11px;margin-top:2px;">Desastres naturais</div>
+      </div>
+      <div class="num-card" onclick="alert('Ligue 197 — Polícia Civil')">
+        <div style="font-size:36px;">🔍</div>
+        <div style="font-size:28px;font-weight:800;color:#8E44AD;font-family:'Fredoka One',cursive;margin:4px 0;">197</div>
+        <div style="font-weight:800;color:#333;font-size:13px;">Pol. Civil</div>
+        <div style="color:#999;font-size:11px;margin-top:2px;">Delegacia</div>
+      </div>
+      <div class="num-card" onclick="alert('Ligue 180 — Central de Atendimento à Mulher')">
+        <div style="font-size:36px;">💜</div>
+        <div style="font-size:28px;font-weight:800;color:#9B59B6;font-family:'Fredoka One',cursive;margin:4px 0;">180</div>
+        <div style="font-weight:800;color:#333;font-size:13px;">Mulher</div>
+        <div style="color:#999;font-size:11px;margin-top:2px;">Violência doméstica</div>
+      </div>
+      <div class="num-card" onclick="alert('Ligue 136 — Saúde (Ministério da Saúde)')">
+        <div style="font-size:36px;">🏥</div>
+        <div style="font-size:28px;font-weight:800;color:#E74C3C;font-family:'Fredoka One',cursive;margin:4px 0;">136</div>
+        <div style="font-weight:800;color:#333;font-size:13px;">Saúde</div>
+        <div style="color:#999;font-size:11px;margin-top:2px;">Min. da Saúde</div>
+      </div>
+      <div class="num-card" onclick="alert('Ligue 100 — Direitos Humanos')">
+        <div style="font-size:36px;">⚖️</div>
+        <div style="font-size:28px;font-weight:800;color:#E8651A;font-family:'Fredoka One',cursive;margin:4px 0;">100</div>
+        <div style="font-weight:800;color:#333;font-size:13px;">Dir. Humanos</div>
+        <div style="color:#999;font-size:11px;margin-top:2px;">Violações de direitos</div>
+      </div>
+    </div>
+    <div class="tip-box" style="background:#FEF9E7;border-color:#F4C430;margin-top:6px;">
+      <div style="font-weight:800;color:#D4AC0D;margin-bottom:5px;">⚡ Dica do Sargento</div>
+      <div style="font-size:14px;color:#666;line-height:1.6;">Todos esses números são <strong>gratuitos</strong> e funcionam 24h. Mesmo sem crédito no celular! Salve também o número dos seus responsáveis nos favoritos.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODULE VIEW ═══ -->
+<div class="screen" id="screen-module">
+  <div class="hdr" id="mod-hdr">
+    <div class="hdr-pattern"></div>
+    <div style="position:relative;">
+      <button class="back-btn" onclick="goHome()">‹ Início</button>
+      <div id="mod-emoji" style="font-size:46px;margin-bottom:6px;"></div>
+      <div id="mod-num" style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,.7);margin-bottom:4px;"></div>
+      <h2 id="mod-title" style="color:white;font-family:'Fredoka One',cursive;font-size:22px;"></h2>
+    </div>
+  </div>
+  <div class="scroll" style="padding:16px 16px 32px;">
+    <p id="mod-count" style="color:#888;font-size:13px;margin-bottom:12px;font-weight:600;"></p>
+    <div id="lessons-list"></div>
+  </div>
+</div>
+
+<!-- ═══ LESSON VIEW ═══ -->
+<div class="screen" id="screen-lesson">
+  <div class="hdr" id="les-hdr">
+    <div class="hdr-pattern"></div>
+    <div style="position:relative;">
+      <button class="back-btn" id="les-back">‹ Voltar</button>
+      <div id="les-icon" style="font-size:46px;margin-bottom:8px;"></div>
+      <h2 id="les-title" style="color:white;font-family:'Fredoka One',cursive;font-size:21px;line-height:1.2;"></h2>
+      <span id="les-time" style="color:rgba(255,255,255,.75);font-size:12px;margin-top:5px;display:block;"></span>
+    </div>
+  </div>
+  <div class="scroll" style="padding:16px 16px 40px;">
+    <div class="lesson-body" id="les-body"></div>
+    <div class="tip-box" id="les-tip" style="background:#F0F8F0;border-color:#3D6B4F;">
+      <div style="font-weight:800;color:#3D6B4F;margin-bottom:5px;">🪖 Dica do Sargento</div>
+      <div id="les-tip-text" style="font-size:14px;color:#555;line-height:1.65;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ AI CHAT ═══ -->
+<div class="screen" id="screen-ai">
+  <div style="background:linear-gradient(135deg,#2C3E2D,#3D6B4F);padding:16px 18px;display:flex;align-items:center;gap:11px;flex-shrink:0;position:relative;overflow:hidden;">
+    <div class="hdr-pattern"></div>
+    <button class="back-btn" onclick="goHome()" style="position:relative;">‹ Início</button>
+    <span style="font-size:30px;position:relative;">🪖</span>
+    <div style="position:relative;">
+      <div style="color:white;font-weight:800;font-size:17px;font-family:'Fredoka One',cursive;">Sargento IA</div>
+      <div style="color:rgba(255,255,255,.7);font-size:11px;">Assistente Escoteiro • Online</div>
+    </div>
+  </div>
+  <div class="chat-messages" id="chat-messages"></div>
+  <div class="chat-input-row">
+    <input type="text" id="chat-input" placeholder="Pergunte qualquer coisa..." onkeydown="if(event.key==='Enter')sendMsg()"/>
+    <button class="send-btn" id="send-btn" onclick="sendMsg()">Enviar</button>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<script>
+const MODULES = [
+  {
+    id:0, emoji:"🍳", title:"Cozinha Básica", color:"#C0550F", grad:"linear-gradient(135deg,#C0550F,#E8651A)",
+    lessons:[
+      {icon:"🛡️",title:"Segurança na Cozinha",time:"8 min",
+       body:"Antes de tudo: lave bem as mãos com sabão por pelo menos 20 segundos.\n\n🔪 Facas: sempre corte na tábua, nunca segure o alimento na mão sem apoio. Nunca deixe facas na borda da pia.\n\n🔥 Fogão: nunca deixe panelas com cabo para fora (pode ser derrubado). Panos longe do fogo. Ao sair de casa, confira se o fogão está desligado.\n\n💧 Nunca mergulhe equipamentos elétricos em água. Sempre seque as mãos antes de mexer em tomadas.",
+       tip:"Um extintor ou cobertor anti-chamas na cozinha pode salvar vidas. Pergunte ao responsável se tem em casa!"},
+      {icon:"🍚",title:"Arroz Soltinho Perfeito",time:"20 min",
+       body:"Ingredientes: 1 xícara de arroz, 2 xícaras de água, alho, sal, azeite.\n\n1️⃣ Lave o arroz em água corrente até sair limpo.\n2️⃣ Aqueça 2 colheres de azeite, refogue 1 dente de alho picado.\n3️⃣ Adicione o arroz e mexa por 2 minutos.\n4️⃣ Coloque água quente, sal a gosto.\n5️⃣ Tampa e fogo baixo por 15 minutos — NÃO abra a tampa!\n6️⃣ Desligue e deixe descansar 5 minutos.",
+       tip:"A proporção é sempre 1 de arroz para 2 de água. Grave isso e você nunca mais erra o arroz!"},
+      {icon:"🍳",title:"Omelete Rápida",time:"10 min",
+       body:"Ingredientes: 2 ovos, sal, pimenta, recheio opcional.\n\n1️⃣ Bata os ovos com sal e pimenta em um prato fundo.\n2️⃣ Aqueça a frigideira com manteiga em fogo médio.\n3️⃣ Despeje os ovos — PARE de mexer.\n4️⃣ Quando as bordas firmarem, adicione o recheio (queijo, presunto, tomate) em metade.\n5️⃣ Dobre com espátula e sirva.\n\nRecheios: Queijo + presunto / tomate + manjericão / frango desfiado",
+       tip:"O segredo é não mexer depois de despejar. A paciência cria o omelete perfeito!"},
+      {icon:"🍝",title:"Macarrão ao Molho",time:"25 min",
+       body:"Ingredientes: 200g de macarrão, 1 lata de tomate pelado, alho, azeite, sal, manjericão.\n\n⭕ Massa: Água fervendo com sal generoso. Cozinhe conforme embalagem (al dente = 1 min a menos).\n\n⭕ Molho: Refogue 2 dentes de alho no azeite. Adicione tomate amassado, pitada de açúcar, sal e pimenta. Cozinhe 12 min em fogo baixo.\n\n⭕ Misture a massa escorrida com o molho. Sirva com queijo parmesão.",
+       tip:"Guarde 1 concha da água do macarrão antes de escorrer — ela deixa o molho mais cremoso e gruda melhor na massa!"},
+    ]
+  },
+  {
+    id:1, emoji:"👕", title:"Lavanderia", color:"#1A6B9A", grad:"linear-gradient(135deg,#1A6B9A,#3498DB)",
+    lessons:[
+      {icon:"🔵",title:"Separando as Roupas",time:"5 min",
+       body:"NUNCA misture tudo na máquina! Separe assim:\n\n🔴 Roupas escuras (preto, azul, marrom) — juntas\n⚪ Roupas claras (branco, bege, rosa claro) — juntas\n🎨 Roupas coloridas vivas (vermelho, verde, laranja) — juntas\n\n⚠️ Por quê? Roupas novas soltam tinta. Uma meia vermelha pode deixar todas as roupas rosa!\n\n👕 Confira as etiquetas: temperaturas altas encolhem roupas de algodão e danificam sintéticos.",
+       tip:"Separe também por sujos x menos sujos. Meias e roupas de treino sujas não devem lavar com camisas delicadas."},
+      {icon:"🌀",title:"Usando a Máquina de Lavar",time:"10 min",
+       body:"Passo a passo:\n\n1️⃣ Carregue as roupas (máx. até 3/4 da capacidade — roupas precisam de espaço para girar).\n2️⃣ Coloque o sabão na gaveta ou direto no tambor — siga a medida da embalagem.\n3️⃣ Amaciante na compartimento específico (geralmente o último).\n4️⃣ Escolha o programa:\n   • Normal/Cotidiano: roupas comuns\n   • Delicado: malharia, lingerie\n   • Pesado: toalhas, roupas de cama\n5️⃣ Temperatura: frio para cores, morno para branco.\n6️⃣ Retire logo após terminar para não criar mau cheiro.",
+       tip:"Deixar roupa esquecida na máquina por horas cria aquele cheiro de mofo. Coloque alarme para tirar!"},
+      {icon:"🧴",title:"Tirando Manchas",time:"5 min",
+       body:"Trate manchas ANTES de lavar — na máquina elas fixam!\n\n☕ Café/chá: água fria imediatamente, nunca quente.\n🩸 Sangue: água FRIA com sabão, nunca quente (coagula).\n🛢️ Gordura/óleo: sal ou talco por 5 min para absorver, depois detergente de louça.\n🍷 Vinho tinto: sal imediatamente, depois água fria.\n🖊️ Caneta: álcool ou removedor de esmalte (teste antes).\n\n✅ Sempre teste o produto em parte escondida da roupa primeiro!",
+       tip:"Quanto mais rápido você tratar a mancha, maior a chance de tirar. Mancha seca é muito mais difícil!"},
+      {icon:"👔",title:"Dobrar e Guardar",time:"8 min",
+       body:"🌬️ Estendendo:\n• Camisetas: segure pelos ombros, agite antes de pendurar.\n• Jeans: pendure pelo cós dobrado.\n• Meias: não torça, estique suavemente.\n\n📦 Dobrando camiseta:\n1. Deite no plano.\n2. Dobre um lado ao centro.\n3. Dobre o outro lado.\n4. Dobre ao meio ou em terços.\n\n🗄️ Guardando:\n• Guarde em pé (método KonMari) — você vê tudo sem bagunçar.\n• Meias: não vire uma por dentro da outra, isso estica a elástico.",
+       tip:"Guardar roupas dobradas em pé muda tudo! Você nunca mais vai desmontar toda a gaveta pra achar uma camisa."},
+    ]
+  },
+  {
+    id:2, emoji:"🧹", title:"Limpeza da Casa", color:"#1E7A45", grad:"linear-gradient(135deg,#1E7A45,#27AE60)",
+    lessons:[
+      {icon:"📋",title:"Rotina de Limpeza",time:"7 min",
+       body:"DIÁRIO (5-10 min):\n✅ Fazer a cama logo ao acordar\n✅ Lavar o que usou na cozinha\n✅ Varrer ou aspirar o quarto\n✅ Jogar lixo fora\n\nSEMANAL (1-2h):\n✅ Limpar o banheiro\n✅ Passar pano no chão\n✅ Limpar eletrodomésticos\n✅ Trocar toalhas e roupa de cama\n\nMENSAL:\n✅ Limpar geladeira por dentro\n✅ Lavar janelas\n✅ Limpar atrás dos móveis",
+       tip:"Fazer a cama assim que acorda dá sensação de produtividade imediata. É o primeiro 'dever cumprido' do dia!"},
+      {icon:"🚽",title:"Limpando o Banheiro",time:"15 min",
+       body:"Materiais: luva, esponja, detergente, desinfetante, vassoura de vaso.\n\n1️⃣ Vaso sanitário: jogue desinfetante dentro, deixe 5 min. Esfregue com vassoura, por baixo da borda também. Jogue água.\n\n2️⃣ Pia: detergente + esponja, esfregue inclusive torneira. Enxágue bem.\n\n3️⃣ Box/Box de vidro: spray de limpador e esponja nas paredes. Remova calcário com vinagre branco.\n\n4️⃣ Chão: passe pano com água + produto.\n\n5️⃣ Espelho: papel ou pano sem fiapos + limpador de vidro.",
+       tip:"Use luva sempre no banheiro! E troque sua toalha de banho a cada 3-4 dias no máximo."},
+      {icon:"🍽️",title:"Lavar Louça",time:"10 min",
+       body:"Ordem certa para lavar louça:\n\n1️⃣ Copos e xícaras (mais limpos)\n2️⃣ Pratos e travessas\n3️⃣ Potes e panelas\n4️⃣ Última: frigideiras com gordura\n\n💡 Deixe de molho panelas com resíduo seco antes de lavar.\n\n🧽 Esponja: a parte amarela é para panelas e superfícies; a verde (abrasiva) arranha vidros e alumínio polido.\n\n🫧 Enxágue bem — sabão residual faz mal se ingerido.\n\n🌡️ Água quente corta gordura muito melhor que fria.",
+       tip:"Lavar logo após usar é 3x mais fácil que deixar secar e acumular. Nunca vá dormir com louça suja!"},
+      {icon:"🧴",title:"Produtos de Limpeza",time:"6 min",
+       body:"O básico que não pode faltar:\n\n🧴 Detergente de louça: louça e superfícies leves\n🫧 Desinfetante: banheiro, chão, vaso\n🪣 Água sanitária: desinfecção forte, branqueamento\n🧹 Multiuso: balcões, mesas, eletrodomésticos\n🪟 Limpador de vidro: espelhos e vidros\n\n⚠️ NUNCA misture:\n• Água sanitária + Vinagre = gás tóxico\n• Água sanitária + Álcool = reação perigosa\n• Desinfetante + Detergente = perde eficácia\n\nUm produto de cada vez!",
+       tip:"Guarde produtos de limpeza sempre em local alto e fora do alcance de crianças. Nunca transfira para garrafa de bebida!"},
+    ]
+  },
+  {
+    id:3, emoji:"🚿", title:"Higiene Pessoal", color:"#1565A0", grad:"linear-gradient(135deg,#1565A0,#2980B9)",
+    lessons:[
+      {icon:"☀️",title:"Rotina Matinal",time:"8 min",
+       body:"Sequência ideal ao acordar:\n\n1️⃣ Beber água (1 copo logo ao acordar — o corpo precisa)\n2️⃣ Lavar o rosto com água fria\n3️⃣ Escovar os dentes (2 min, movimentos circulares)\n4️⃣ Tomar banho\n5️⃣ Desodorante (aplique em pele seca!)\n6️⃣ Vestir roupa limpa\n7️⃣ Fazer a cama\n\n⏱ Com prática isso tudo leva 20-25 minutos.\n\nDica: prepare a roupa na noite anterior para não perder tempo.",
+       tip:"Beber água em jejum hidrata o corpo, acelera o metabolismo e ainda ajuda a acordar mais rápido!"},
+      {icon:"🦷",title:"Saúde Bucal",time:"7 min",
+       body:"Escovação correta:\n\n🪥 Use escova com cerdas macias — dura machuca a gengiva.\n⏱ Escove por 2 minutos — use música ou timer.\n🔄 Movimentos circulares suaves em todos os lados.\n\nFio dental: use ANTES de escovar para soltar o que está entre os dentes.\n\nEnxaguante bucal: opcional, use após escovar.\n\nFrequência:\n✅ Após café da manhã\n✅ Após almoço (mínimo enxague com água)\n✅ Antes de dormir (mais importante!)\n\n⚠️ Troque a escova a cada 3 meses.",
+       tip:"Escovar antes de dormir é o mais importante! À noite a boca fica mais ressecada e as bactérias agem mais."},
+      {icon:"🧴",title:"Cuidados com a Pele",time:"6 min",
+       body:"Rotina básica:\n\n🌊 Lavar o rosto: manhã e noite. Use sabonete facial (não use sabão de banho no rosto — resseca).\n\n💧 Hidratante: após lavar o rosto, aplique hidratante. Pele saudável é hidratada.\n\n☀️ Protetor solar: todo dia, mesmo nublado. O UV atravessa nuvens. Aplique 20 min antes de sair.\n\n🤲 Mãos: lave com frequência, especialmente antes de comer e após banheiro. Hidrate quando necessário.\n\n⚠️ Não espreme espinhas — piora e pode causar manchas permanentes.",
+       tip:"Protetor solar diário é o maior segredo anti-envelhecimento que existe. Comece cedo e sua pele agradece no futuro!"},
+      {icon:"💈",title:"Cabelo e Unhas",time:"6 min",
+       body:"🧴 Cabelo:\n• Shampoo: massageie o couro cabeludo, não as pontas.\n• Condicionador: apenas nos fios, nunca na raiz (deixa oleoso).\n• Enxágue bem — resíduo deixa cabelo opaco.\n• Frequência: 1-3x por semana conforme tipo do cabelo.\n\n✂️ Unhas:\n• Corte quando começar a dobrar — evita quebras e infecções.\n• Corte reto (especialmente pé) para evitar encravamento.\n• Lave sob as unhas ao lavar as mãos.\n• Nunca morda as unhas — passa bactérias para a boca.\n\n👟 Pés: lave entre os dedos para evitar fungo.",
+       tip:"Unhas sujas são um dos principais meios de transmissão de bactérias para a boca. Mantenha sempre limpas!"},
+    ]
+  },
+  {
+    id:4, emoji:"📞", title:"Números de Emergência", color:"#A00000", grad:"linear-gradient(135deg,#A00000,#C0392B)",
+    lessons:[] // handled separately
+  },
+  {
+    id:5, emoji:"⚡", title:"Emergências em Casa", color:"#B07A00", grad:"linear-gradient(135deg,#B07A00,#F39C12)",
+    lessons:[
+      {icon:"💡",title:"Acabou a Energia",time:"5 min",
+       body:"Passo a passo:\n\n1️⃣ Verifique se é só sua casa ou o bairro todo (olhe pela janela).\n\n2️⃣ Se for só sua casa: vá ao quadro de disjuntores (geralmente na entrada ou corredor).\n\n3️⃣ Procure o disjuntor que está na posição do meio ou desligado (diferente dos outros).\n\n4️⃣ Empurre ele firmemente para a posição LIGADO.\n\n5️⃣ Se cair de novo: tem algo ligado causando sobrecarga. Desligue aparelhos e tente novamente.\n\n6️⃣ Se for o bairro todo: ligue para a distribuidora de energia (número na conta de luz).\n\n⚠️ Nunca mexa em fios expostos.",
+       tip:"Nunca abra o quadro elétrico com mãos molhadas. Se achar um fio solto ou queimado, não toque — chame um eletricista!"},
+      {icon:"💧",title:"Vazamento de Água",time:"5 min",
+       body:"Vazamento pequeno (torneira/chuveiro):\n✅ Feche o registro individual do cômodo (embaixo da pia ou atrás do vaso).\n✅ Avise o responsável da casa.\n\nVazamento grande (cano estourou):\n🔴 1️⃣ Feche o registro geral imediatamente (geralmente na entrada da casa, quintal ou caixa externa).\n🔴 2️⃣ Gire no sentido horário até parar.\n🔴 3️⃣ Ligue para a empresa de água ou um encanador.\n\n⚠️ Água perto de tomadas ou quadro elétrico: desligue o disjuntor geral ANTES de tudo.",
+       tip:"Saiba AGORA onde fica o registro geral da sua casa. Numa emergência não há tempo para procurar!"},
+      {icon:"🔥",title:"Cheiro de Gás",time:"3 min",
+       body:"🚨 AÇÃO IMEDIATA:\n\n❌ NÃO acenda luzes, não ligue nenhum interruptor.\n❌ NÃO acenda o fogão ou qualquer chama.\n❌ NÃO use o celular dentro de casa.\n\n✅ 1️⃣ Abra todas as janelas e portas imediatamente.\n✅ 2️⃣ Feche o registro do botijão (gire no sentido horário).\n✅ 3️⃣ Saia da casa.\n✅ 4️⃣ Do lado de fora, ligue para os Bombeiros: 193.\n✅ 5️⃣ Só retorne quando profissional autorizar.\n\nBotijão vazio: cheiro fraco normal ao trocar. Se persistir com botijão novo: verifique mangueira.",
+       tip:"Uma faísca de interruptor pode explodir o gás acumulado. Sair primeiro, ligar depois!"},
+      {icon:"🌊",title:"Entupimento",time:"8 min",
+       body:"Pia entupida:\n\n🪠 Com desentupidor:\n1. Cubra o ralo com o desentupidor.\n2. Faça movimentos de pressão rápidos (sem tirar do lugar).\n3. O vácuo desaloja o entupimento.\n\n🧪 Com produto químico:\n1. Coloque conforme instruções.\n2. Aguarde o tempo indicado.\n3. Jogue bastante água quente.\n\n🏠 Vaso sanitário entupido:\n• Use desentupidor de vaso (mais largo).\n• NUNCA jogue produtos corrosivos no vaso.\n• Se não resolver: chame encanador.\n\n⚠️ Use luva ao manusear desentupidores e produtos.",
+       tip:"Nunca jogue gordura, papel além do higiênico, ou absorventes no ralo. A maioria dos entupimentos tem essa causa!"},
+    ]
+  },
+  {
+    id:6, emoji:"🔧", title:"Pequenos Reparos", color:"#6A2FA0", grad:"linear-gradient(135deg,#6A2FA0,#8E44AD)",
+    lessons:[
+      {icon:"💡",title:"Trocar Lâmpada",time:"5 min",
+       body:"⚡ Segurança primeiro:\n1️⃣ Desligue o interruptor.\n2️⃣ Espere esfriar (lâmpadas incandescentes ficam MUITO quentes).\n3️⃣ Se possível, desligue o disjuntor do cômodo.\n\nTrocando:\n4️⃣ Gire a lâmpada velha no sentido anti-horário até soltar.\n5️⃣ Instale a nova girando no sentido horário até firmar.\n6️⃣ Não aperte demais — pode quebrar o soquete.\n\n💡 Tipos:\n• Rosca (E27): mais comum\n• Halopin: encaixe, puxe suavemente\n• Fluorescente tubo: gire 90° para soltar",
+       tip:"Anote o modelo da lâmpada no celular antes de ir comprar. Tipo, potência (watts) e formato evitam erros na loja!"},
+      {icon:"🪛",title:"Usar Ferramentas Básicas",time:"8 min",
+       body:"🔨 Pregar prego:\n• Marque o ponto com lápis.\n• Comece com batidas suaves para firmar.\n• Bata firme e direto — não incline.\n• Para parede de concreto: use parafuso + bucha.\n\n🪛 Apertar parafuso:\n• Philips (+): chave cruciforme.\n• Fenda (-): chave de fenda plana.\n• Gire no sentido horário para apertar.\n• Nunca force parafuso torto — abre a cabeça.\n\n📐 Medir:\n• Use trena para medir distâncias.\n• 'Medida a fio' = borda a borda do objeto.\n\nKit mínimo: martelo, chave Philips, chave fenda, trena e alicate.",
+       tip:"Guarde as ferramentas sempre no mesmo lugar. Metade do tempo de um reparo é procurar a ferramenta!"},
+      {icon:"🚿",title:"Desentupir Ralo",time:"7 min",
+       body:"Ralo de banheiro lento:\n\n1️⃣ Remova a tampa do ralo (geralmente parafuso no centro ou encaixe).\n\n2️⃣ Com luva, remova o cabelo e resíduos acumulados — é nojento mas resolve 90% dos casos!\n\n3️⃣ Jogue água quente para verificar.\n\n4️⃣ Se ainda lento: use mistura de bicarbonato + vinagre:\n   • 3 colheres de bicarbonato no ralo.\n   • 1/2 xícara de vinagre branco.\n   • Aguarde 15 min borbulhando.\n   • Jogue água quente abundante.\n\n5️⃣ Caso persista: use desentupidor ou chame encanador.",
+       tip:"Instale protetor de ralo com tela fina no banheiro. Custa R$5 e evita 90% dos entupimentos por cabelo!"},
+      {icon:"🔋",title:"Trocar Pilhas e Baterias",time:"5 min",
+       body:"Identificando a pilha:\n\n• AA (pequena): controles, relógios de parede\n• AAA (menor): controles finos, termômetros\n• D (grande): lanternas, brinquedos grandes\n• 9V (retangular): detectores de fumaça\n• Botão (CR2032): controles de carro, relógios\n\nTrocando:\n1️⃣ Abra o compartimento (geralmente parafuso pequeno).\n2️⃣ Observe o + e - indicados.\n3️⃣ Instale respeitando a polaridade.\n4️⃣ Pilha velha no lixo ESPECIAL (não lixo comum).\n\n♻️ Leve pilhas usadas em pontos de coleta (supermercados, farmácias).",
+       tip:"Guarde um pacote de pilha AA e AAA em casa sempre. Você vai precisar na hora menos esperada!"},
+    ]
+  },
+  {
+    id:7, emoji:"💊", title:"Primeiros Socorros", color:"#A00020", grad:"linear-gradient(135deg,#A00020,#E74C3C)",
+    lessons:[
+      {icon:"🩹",title:"Cortes e Machucados",time:"7 min",
+       body:"Corte leve (sangramento pequeno):\n\n1️⃣ Lave as mãos antes de tocar.\n2️⃣ Lave o ferimento com água corrente e sabão por 1-2 min.\n3️⃣ Seque com gaze ou pano limpo (sem esfregar).\n4️⃣ Aplique antisséptico (álcool 70% ou água oxigenada).\n5️⃣ Cubra com curativo.\n6️⃣ Troque o curativo diariamente.\n\n🔴 VÁ AO PRONTO-SOCORRO SE:\n• Corte profundo ou largo (pode precisar de ponto)\n• Sangramento não para após 10 min de pressão\n• Objeto enferrujado ou sujo\n• Ferimento na cabeça ou articulação\n• Sinais de infecção: vermelhidão, calor, pus",
+       tip:"Nunca sopre em ferimentos — a boca tem muitas bactérias. Água corrente e sabão são os melhores antissépticos!"},
+      {icon:"🔥",title:"Queimaduras",time:"6 min",
+       body:"Queimadura leve (1° grau - vermelhidão):\n\n✅ 1️⃣ Água fria corrente por 10-20 minutos imediatamente.\n✅ 2️⃣ Não use: gelo, manteiga, pasta de dente, creme.\n✅ 3️⃣ Após esfriar: curativo suave.\n\nQueimadura com bolha (2° grau):\n⚠️ Água fria corrente, mas NÃO estoure a bolha.\n⚠️ Procure atendimento médico.\n\n🔴 LIGUE 192 (SAMU) IMEDIATAMENTE:\n• Queimadura extensa (maior que a palma da mão)\n• Queimadura no rosto, pescoço, mãos, pés ou genitais\n• Queimadura elétrica ou química\n• Criança ou idoso queimado",
+       tip:"Os 10 minutos com água fria são fundamentais — reduzem a profundidade da queimadura e a dor. Não pule essa etapa!"},
+      {icon:"😮",title:"Engasgo",time:"5 min",
+       body:"ADULTO/CRIANÇA consciente engasgada:\n\n1️⃣ Peça para a pessoa tossir forte — pode resolver.\n\n2️⃣ Se não resolver, aplique a Manobra de Heimlich:\n   • Fique atrás da pessoa.\n   • Coloque os braços ao redor da cintura.\n   • Uma mão fechada (polegar para dentro) acima do umbigo.\n   • Outra mão por cima.\n   • Puxões rápidos para dentro e para cima.\n   • Repita até desobstruir.\n\n🔴 Se a pessoa desmaiar: deite no chão e ligue 192.\n\n👶 BEBÊ: nunca faça Heimlich — 5 palmadas nas costas + 5 compressões no peito.",
+       tip:"Aprenda a Manobra de Heimlich na prática — peça ao responsável para te ensinar ou pesquise um vídeo demonstrativo!"},
+      {icon:"😵",title:"Desmaio e Tontura",time:"6 min",
+       body:"Pessoa que vai desmaiar (tontura, palidez, suor frio):\n\n✅ Sente ou deite a pessoa imediatamente.\n✅ Se sentada: cabeça entre os joelhos por 1 min.\n✅ Se deitada: eleve as pernas (aumenta circulação para o cérebro).\n✅ Local arejado, solte roupas apertadas.\n✅ Ofereça água quando recuperar.\n\nPessoa já desmaiada:\n✅ Verifique se respira.\n✅ Posição lateral de segurança (de lado, não de costas).\n✅ Não coloque nada na boca.\n✅ Ligue 192 se não recuperar em 1 minuto.\n\n🔴 LIGUE 192 SE:\n• Não acordar em 1 min.\n• Tiver convulsões.\n• Queda com batida na cabeça.",
+       tip:"Desmaios geralmente são inofensivos mas a queda pode machucar. Ao sentir tontura, sente-se imediatamente no chão — não espere!"},
+    ]
+  }
+];
+
+let currentMod = 0;
+const chatHistory = [];
+
+function goHome(){ show('screen-home'); }
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById(id).querySelector('.scroll')?.scrollTo(0,0);
+}
+
+function openModule(i){
+  if(i === 4){ show('screen-numbers'); return; }
+  currentMod = i;
+  const m = MODULES[i];
+  document.getElementById('mod-hdr').style.background = m.grad;
+  document.getElementById('mod-emoji').textContent = m.emoji;
+  document.getElementById('mod-num').textContent = `Módulo ${i < 4 ? i+1 : i} • ${m.lessons.length} lições`;
+  document.getElementById('mod-title').textContent = m.title;
+  document.getElementById('mod-count').textContent = `Selecione uma lição para começar`;
+  const list = document.getElementById('lessons-list');
+  list.innerHTML = '';
+  m.lessons.forEach((l,j)=>{
+    const d = document.createElement('div');
+    d.className = 'card';
+    d.style.borderColor = 'rgba(0,0,0,.05)';
+    d.innerHTML = `
+      <div class="card-icon" style="background:${m.grad};font-size:22px;">${l.icon}</div>
+      <div style="flex:1;">
+        <div style="font-weight:800;color:#2C3E2D;font-size:15px;">${l.title}</div>
+        <div style="color:#999;font-size:12px;margin-top:2px;">⏱ ${l.time}</div>
+      </div>
+      <div class="card-arrow">›</div>`;
+    d.onclick = ()=>openLesson(j);
+    list.appendChild(d);
+  });
+  show('screen-module');
+}
+
+function openLesson(j){
+  const m = MODULES[currentMod];
+  const l = m.lessons[j];
+  document.getElementById('les-hdr').style.background = m.grad;
+  document.getElementById('les-icon').textContent = l.icon;
+  document.getElementById('les-title').textContent = l.title;
+  document.getElementById('les-time').textContent = '⏱ Leitura: ' + l.time;
+  document.getElementById('les-body').innerHTML = l.body.replace(/\n/g,'<br/>');
+  document.getElementById('les-tip-text').textContent = l.tip;
+  document.getElementById('les-back').onclick = ()=>openModule(currentMod);
+  show('screen-lesson');
+}
+
+// ─── AI ─────────────────────────────────────────────────────
+function openAI(){
+  const msgs = document.getElementById('chat-messages');
+  if(!msgs.children.length){
+    addBotMsg("Sentido, recruta! 🪖 Sou o Sargento IA. Pode perguntar sobre cozinha, limpeza, emergências, saúde... qualquer coisa do manual. Fala!");
+  }
+  show('screen-ai');
+  setTimeout(()=>msgs.scrollTop=msgs.scrollHeight,100);
+}
+
+function addBotMsg(text){
+  const msgs = document.getElementById('chat-messages');
+  const d = document.createElement('div');
+  d.className = 'msg bot';
+  d.textContent = text;
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addUserMsg(text){
+  const msgs = document.getElementById('chat-messages');
+  const d = document.createElement('div');
+  d.className = 'msg user';
+  d.textContent = text;
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showTyping(){
+  const msgs = document.getElementById('chat-messages');
+  const d = document.createElement('div');
+  d.className = 'msg bot';
+  d.id = 'typing';
+  d.style.padding = '13px 16px';
+  d.innerHTML = '<div style="display:flex;gap:5px;align-items:center;"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function removeTyping(){ document.getElementById('typing')?.remove(); }
+
+async function sendMsg(){
+  const inp = document.getElementById('chat-input');
+  const btn = document.getElementById('send-btn');
+  const text = inp.value.trim();
+  if(!text) return;
+  inp.value = '';
+  btn.disabled = true;
+  addUserMsg(text);
+  chatHistory.push({role:'user',content:text});
+  showTyping();
+  try{
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:'Você é o Sargento IA, assistente do app Manual do Escoteiro Moderno. Responda como um sargento simpático e encorajador falando com adolescentes. Use linguagem direta, prática e às vezes bem-humorada. Tópicos: cozinha básica, lavanderia, limpeza doméstica, higiene pessoal, emergências em casa, primeiros socorros, pequenos reparos. Respostas curtas e objetivas. Use emojis com moderação. Sempre em português do Brasil.',
+        messages: chatHistory
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || 'Recruta, problema na comunicação! Tente novamente.';
+    chatHistory.push({role:'assistant',content:reply});
+    removeTyping();
+    addBotMsg(reply);
+  }catch(e){
+    removeTyping();
+    addBotMsg('Sinal perdido, recruta! Verifique a internet e tente de novo. 📡');
+  }
+  btn.disabled = false;
+  inp.focus();
+}
+</script>
+</body>
+</html>
